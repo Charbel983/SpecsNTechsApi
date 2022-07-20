@@ -15,6 +15,17 @@ async function getUsers () {
     }
 }
 
+async function getUserById(userId){
+    try{
+        let pool = await sql.connect();
+        let user = await pool.request().input("id", sql.Int, userId)
+        .query("select * from users where id = @id");
+        return user.recordsets;
+    }catch(err){
+        console.log(err);
+    }
+}
+
 async function getUserByEmail(email) {
     try{
         let pool = await sql.connect(config);
@@ -26,20 +37,21 @@ async function getUserByEmail(email) {
     }
 }
 
-async function updateUser(email, firstname, lastname, username){
+async function updateUser(id, firstname, lastname, username){
     try{
         let pool = await sql.connect(config);
         let u = await pool.request()
-            .input('email', sql.NVarChar(MAX), email)
+            .input('id', sql.Int, id)
             .input('firstname', sql.NVarChar(MAX), firstname)
             .input('lastname', sql.NVarChar(MAX), lastname)
             .input('username', sql.NVarChar(MAX), username)
-            .query("update users set firstname = @firstname, lastname = @lastname, username = @username where email = @email");
+            .query("update users set firstname = @firstname, lastname = @lastname, username = @username where id = @id");
             return u.recordsets;
     }catch(error){
         console.log(error);
     }
 }
+
 
 async function updateUserProfilePicture(email, profilepicture){
     try{
@@ -54,13 +66,13 @@ async function updateUserProfilePicture(email, profilepicture){
     }
 }
 
-async function updateUserPassword(email, password){
+async function updateUserPassword(id, password){
     try{
         let pool = await sql.connect(config);
         let pass = await pool.request()
-        .input('email', sql.NVarChar(MAX), email)
+        .input('id', sql.Int, id)
         .input('password', sql.NVarChar(MAX), password)
-        .query("update users set password = @password where email = @email");
+        .query("update users set password = @password where id = @id");
         return pass.recordsets;
     }catch(error){
         console.log(error);
@@ -228,6 +240,18 @@ async function updateProductQuantityInCart(productId, userId, quantity){
     }
 }
 
+async function removeCartItem(userId, itemId){
+    try{
+        let pool = await sql.connect();
+        let item = await pool.request().input("userId", sql.Int, userId)
+        .input("itemId", sql.Int, itemId)
+        .query("delete from carts where productId = @itemId and userId = @userId");
+        return item.recordsets;
+    }catch(err){
+        console.log(err);
+    }
+}
+
 module.exports = {
     getProducts : getProducts,
     getProduct : getProduct,
@@ -245,5 +269,7 @@ module.exports = {
     addProductToCart : addProductToCart,
     getCartById : getCartById,
     updateProductQuantityInCart : updateProductQuantityInCart,
-    getAllCarts : getAllCarts
+    getAllCarts : getAllCarts,
+    getUserById : getUserById,
+    removeCartItem : removeCartItem
 }

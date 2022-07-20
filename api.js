@@ -31,6 +31,12 @@ router.route('/carts').get((request, response) => {
     })
 })
 
+router.route('/cart/:productId/:userId').delete((request, response) => {
+    dboperations.removeCartItem(request.params.userId, request.params.productId).then(result => {
+        response.status(202).json(result)
+    })
+})
+
 router.route('/cart/add/:userId/:productId/:quantity/:name/:image/:price/:instock').post((request, response) => {
     dboperations.addProductToCart(request.params.userId, request.params.quantity, request.params.productId, request.params.name,
         request.params.image, request.params.price, request.params.instock).then(result => {
@@ -51,8 +57,14 @@ router.route('/users').get((request, response) => {
     })
 })
 
-router.route('/user').get((request, response) => {
-    dboperations.getUserByEmail("charbelsaba983@gmail.com").then(result => {
+router.route('/user/:id').get((request, response) => {
+    dboperations.getUserById(request.params.id).then(result => {
+        response.json(result[0])
+    })
+})
+
+router.route('/user/:email').get((request, response) => {
+    dboperations.getUserByEmail(request.params.email).then(result => {
         response.json(result[0])
     })
 })
@@ -70,8 +82,8 @@ router.route('/users').delete((request, response) => {
     })
 })
 
-router.route('/users').patch((request, response) => {
-    dboperations.updateUser("test@gmail.com", "Test1", "Test2", "Test12345").then(result => {
+router.route('/user/:id/:firstname/:lastname/:username').patch((request, response) => {
+    dboperations.updateUser(request.params.id, request.params.firstname, request.params.lastname, request.params.username).then(result => {
         response.status(203).json(result)
     })
 })
@@ -82,8 +94,8 @@ router.route('/userprofilepic').patch((request, response) => {
     })
 })
 
-router.route('/userpassword').patch((request, response) => {
-    dboperations.updateUserPassword("test@gmail.com", "123456").then(result => {
+router.route('/user/:id/:password').patch((request, response) => {
+    dboperations.updateUserPassword(request.params.id, request.params.password).then(result => {
         response.status(203).json(result)
     })
 })
